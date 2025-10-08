@@ -11,7 +11,7 @@ const app = express();
 app.use(
   cors({
     origin: [
-      "https://cart-frontend-6ntw.onrender.com", // deployed frontend
+      "https://cart-frontend-mu.vercel.app", // deployed frontend
       "http://localhost:5173"                    // local frontend
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
