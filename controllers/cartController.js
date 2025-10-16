@@ -1,43 +1,37 @@
+
+You said:
 import Cart from "../models/Cart.js";
 import Product from "../models/Product.js";
 
 // Add product to cart
-export const getCartTotal = async (req, res) => {
+export const addToCart = async (req, res) => {
   try {
-    const userId = req.headers.userid || "anonymousUser";
+    const userId = req.body.userId || "anonymousUser";
+    const { productId, quantity } = req.body;
 
-    const cart = await Cart.findOne({ userId }).populate("products.productId");
-    if (!cart || cart.products.length === 0) {
-      return res.status(200).json({
-        subtotal: 0,
-        tax: 0,
-        total: 0,
-        products: [],
-      });
-    }
+    if (!productId || !quantity)
+      return res.status(400).json({ success: false, message: "ProductId and quantity required" });
 
-    // Filter out null products (deleted or invalid)
-    const validProducts = cart.products.filter(p => p.productId !== null);
+    // Find or create cart 
+    let cart = await Cart.findOne({ userId });
+    if (!cart) cart = new Cart({ userId, products: [] });
 
-    const subtotal = validProducts.reduce(
-      (acc, item) => acc + item.productId.price * item.quantity,
-      0
+    const existingProduct = cart.products.find(
+      (p) => p.productId.toString() === productId
     );
 
-    const tax = parseFloat((subtotal * 0.1).toFixed(2));
-    const total = subtotal + tax;
+    if (existingProduct) {
+      existingProduct.quantity += quantity;
+    } else {
+      cart.products.push({ productId, quantity });
+    }
 
-    res.status(200).json({
-      subtotal,
-      tax,
-      total,
-      products: validProducts,
-    });
+    await cart.save();
+    res.status(200).json({ success: true, cart });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
-
 
 // Get cartTotal
 export const getCartTotal = async (req, res) => {
