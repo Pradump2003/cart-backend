@@ -9,15 +9,7 @@ dotenv.config();
 const app = express();
 
 app.use(
-  cors({
-    origin: [
-      "https://cart-frontend-mu.vercel.app", // deployed frontend
-      "http://localhost:5173"                    // local frontend
-    ],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization", "userid"]
-  })
+  cors("*")
 );
 
 app.use(express.json());
